@@ -9,16 +9,31 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Get source code
         uses: actions/checkout@v4
 
-      - name: Check project files
-        run: |
-          echo "ChessMaster repository is ready"
-          find . -maxdepth 3 -type f
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
 
-      - name: Prepare build notice
-        run: |
-          echo "Android project files are needed before APK compilation."
-          echo "Workflow ran successfully."
+      - name: Install Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build APK
+        run: gradle assembleDebug
+
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ChessMaster-debug-APK
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
